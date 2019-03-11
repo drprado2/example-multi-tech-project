@@ -26,9 +26,9 @@ RUN apt-get install -y openjdk-8-jdk
 RUN apt-get install -y nodejs
 
 # instalar dotnet core 
-RUN wget -y -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg && \
+RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg && \
     mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/ && \
-    wget -y -q https://packages.microsoft.com/config/debian/9/prod.list && \
+    wget -q https://packages.microsoft.com/config/debian/9/prod.list && \
     mv prod.list /etc/apt/sources.list.d/microsoft-prod.list && \
     chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg && \
     chown root:root /etc/apt/sources.list.d/microsoft-prod.list && \
@@ -36,14 +36,17 @@ RUN wget -y -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearm
     apt-get install -y dotnet-sdk-2.2
 
 # Criação do diretório para backup
-RUN mkdir /srv/backup && chown jenkins:jenkins /srv/backup
+RUN mkdir /srv/backup 
 
-#RUN echo 2.112 > /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
-#RUN echo 2.112 > /usr/share/jenkins/ref/jenkins.install.InstallUtil.lastExecVersion
+# Desabilita primeiro login e desabilita wizard de plugins
+RUN echo 2.112 > /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
+RUN echo 2.112 > /usr/share/jenkins/ref/jenkins.install.InstallUtil.lastExecVersion
 
-#COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
-#RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
+# Instala os plugins
+COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
+RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 
 # Configurar JAVA_HOME
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
-#COPY --chown=jenkins:jenkins config_jenkins /var/jenkins_home
+
+COPY --chown=jenkins:jenkins config_jenkins /var/jenkins_home
