@@ -2,3 +2,5 @@ dotnet.project/.idea/
 dotnet.project/dotnet.project.api/obj/
 dotnet.project/dotnet.project.api/bin/
 jenkinsCI.project/bkp_jenkins/
+.idea/
+.vs/
