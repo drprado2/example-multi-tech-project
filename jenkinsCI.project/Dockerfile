@@ -15,6 +15,7 @@ RUN apt-get update && \
 
 # instalar Docker
 RUN curl -fsSL https://get.docker.com | bash
+RUN usermod -aG docker jenkins
 
 # instalar git
 RUN apt-get install -y git
@@ -34,6 +35,12 @@ RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor 
     chown root:root /etc/apt/sources.list.d/microsoft-prod.list && \
     apt-get update && \
     apt-get install -y dotnet-sdk-2.2
+
+# install kubectl
+RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl; chmod +x ./kubectl; mv ./kubectl /usr/local/bin/kubectl
+
+# Setting the number of executors
+COPY executors.groovy /usr/share/jenkins/ref/init.groovy.d/executors.groovy
 
 # Criação do diretório para backup
 RUN mkdir /srv/backup 
