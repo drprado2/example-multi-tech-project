@@ -1,6 +1,8 @@
 # Partir da imagem oficial do jenkins, com versão fixa
 FROM jenkins/jenkins:2.167
 
+LABEL Author="Adriano P. Oliveira"
+
 # Alterar para executar tudo como usuário root
 USER root
 
@@ -39,21 +41,18 @@ RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor 
 # install kubectl
 RUN curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl; chmod +x ./kubectl; mv ./kubectl /usr/local/bin/kubectl
 
-# Setting the number of executors
-COPY executors.groovy /usr/share/jenkins/ref/init.groovy.d/executors.groovy
+# Configurar JAVA_HOME
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
 
 # Criação do diretório para backup
-RUN mkdir /srv/backup 
+RUN mkdir /srv/backup
 
-# Desabilita primeiro login e desabilita wizard de plugins
-RUN echo 2.112 > /usr/share/jenkins/ref/jenkins.install.UpgradeWizard.state
-RUN echo 2.112 > /usr/share/jenkins/ref/jenkins.install.InstallUtil.lastExecVersion
+USER jenkins
 
 # Instala os plugins
 COPY plugins.txt /usr/share/jenkins/ref/plugins.txt
 RUN /usr/local/bin/install-plugins.sh < /usr/share/jenkins/ref/plugins.txt
 
-# Configurar JAVA_HOME
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64
-
-COPY --chown=jenkins:jenkins config_jenkins /var/jenkins_home
+# Auto Configuration Scripts
+COPY groovy/* /usr/share/jenkins/ref/init.groovy.d/
+COPY config/*.properties ${JENKINS_HOME}/config/
