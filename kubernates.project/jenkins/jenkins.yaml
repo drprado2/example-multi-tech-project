@@ -36,6 +36,9 @@ spec:
           securityContext:
             privileged: true
           image: drprado2/jenkins
+          env:
+            - name: JENKINS_OPTS
+              value: --prefix=/jenkins
           ports:
             - containerPort: 8080
               name: jenkins-ui
