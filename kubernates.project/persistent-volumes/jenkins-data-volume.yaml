@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jenkins-data-volume
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: faster
+  resources:
+    requests:
+      storage: 1Gi
+

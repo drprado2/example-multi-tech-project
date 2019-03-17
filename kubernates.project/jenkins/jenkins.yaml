@@ -1,0 +1,61 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: jenkins-rbac
+subjects:
+  - kind: ServiceAccount
+    name: default
+    namespace: default
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: jenkins
+spec:
+  selector:
+    matchLabels:
+      app: jenkins
+  serviceName: jenkins-svc
+  updateStrategy:
+    type: RollingUpdate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: jenkins
+          securityContext:
+            privileged: true
+          image: drprado2/jenkins
+          ports:
+            - containerPort: 8080
+              name: jenkins-ui
+            - containerPort: 50000
+              name: jenkins-master
+          volumeMounts:
+            - mountPath: /var/jenkins_home
+              name: jenkins-data
+            - mountPath: /srv/backup
+              name: jenkins-bkp
+            - name: docker
+              mountPath: /var/run/docker.sock
+      volumes:
+        - name: docker
+          hostPath:
+            path: /var/run/docker.sock
+        - name: jenkins-data
+          persistentVolumeClaim:
+            claimName: jenkins-data-volume
+        - name: jenkins-bkp
+          persistentVolumeClaim:
+            claimName: jenkins-bkp-volume
+
