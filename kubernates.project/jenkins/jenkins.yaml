@@ -36,6 +36,7 @@ spec:
           securityContext:
             privileged: true
           image: drprado2/jenkins
+          imagePullPolicy: Always
           env:
             - name: JENKINS_OPTS
               value: --prefix=/jenkins
